@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorappfactory.dev/schemas/product.schema.json",
+  "title": "TensorAppFactory Product Specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "product", "delivery"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "summary", "platforms", "features"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{2,47}$"},
+        "name": {"type": "string", "minLength": 2, "maxLength": 80},
+        "summary": {"type": "string", "minLength": 20, "maxLength": 500},
+        "platforms": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["android", "ios", "web", "desktop"]}},
+        "features": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 2}},
+        "target_users": {"type": "array", "items": {"type": "string"}},
+        "monetization": {"enum": ["free", "paid", "subscription", "freemium", "internal"]}
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifacts", "acceptance_criteria"],
+      "properties": {
+        "artifacts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["apk", "aab", "source", "test-report", "release-notes"}},
+        "acceptance_criteria": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["id", "given", "when", "then"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^[A-Z0-9_-]+$"},
+              "given": {"type": "string", "minLength": 3},
+              "when": {"type": "string", "minLength": 3},
+              "then": {"type": "string", "minLength": 3}
+            }
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "collects_personal_data": {"type": "boolean"},
+        "data_categories": {"type": "array", "items": {"type": "string"}},
+        "network_access": {"type": "boolean", "default": false},
+        "privacy_policy_url": {"type": "string", "format": "uri"}
+      }
+    }
+  }
+}
