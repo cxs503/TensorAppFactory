@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "product": {
+    "id": "hello-tensor",
+    "name": "Hello Tensor",
+    "summary": "A reference app that verifies the Android build and artifact delivery pipeline.",
+    "platforms": ["android"],
+    "features": ["launch-screen", "basic-navigation"],
+    "target_users": ["factory developers"],
+    "monetization": "internal"
+  },
+  "delivery": {
+    "artifacts": ["apk", "source", "test-report"],
+    "acceptance_criteria": [{
+      "id": "APP-001",
+      "given": "the app is installed on a supported Android device",
+      "when": "the user launches the app",
+      "then": "the home screen displays Hello Tensor and a readiness message"
+    }]
+  },
+  "data": {
+    "collects_personal_data": false,
+    "data_categories": [],
+    "network_access": false
+  }
+}
