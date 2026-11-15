@@ -19,6 +19,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
@@ -33,11 +35,37 @@ private val tfngOptions = listOf("TRUE", "FALSE", "NOT GIVEN")
 
 @Composable
 fun QuizScreen(content: ContentPackage, modifier: Modifier = Modifier) {
-    var questionIndex by remember(content.packageId) { mutableIntStateOf(0) }
-    var response by remember(content.packageId) { mutableStateOf("") }
-    var evaluation by remember(content.packageId) { mutableStateOf<QuizEvaluation?>(null) }
-    var attempts by remember(content.packageId) { mutableIntStateOf(0) }
-    val correctQuestionIds = remember(content.packageId) { mutableSetOf<String>() }
+    val context = LocalContext.current
+    val progressStore = remember(context, content.packageId) { QuizProgressStore(context) }
+    val restored = remember(content.packageId) { progressStore.load(content.packageId) }
+    var questionIndex by remember(content.packageId) {
+        mutableIntStateOf(restored.questionIndex.coerceIn(0, content.questions.size))
+    }
+    var response by remember(content.packageId) { mutableStateOf(restored.response) }
+    var attempts by remember(content.packageId) { mutableIntStateOf(restored.attempts) }
+    var correctQuestionIds by remember(content.packageId) {
+        mutableStateOf(restored.correctQuestionIds)
+    }
+    var evaluation by remember(content.packageId) {
+        mutableStateOf(
+            if (restored.hasSubmitted && questionIndex < content.questions.size) {
+                QuizEngine.evaluate(content.questions[questionIndex], restored.response)
+            } else null
+        )
+    }
+
+    LaunchedEffect(content.packageId, questionIndex, response, attempts, correctQuestionIds, evaluation) {
+        progressStore.save(
+            content.packageId,
+            QuizProgress(
+                questionIndex = questionIndex,
+                response = response,
+                attempts = attempts,
+                correctQuestionIds = correctQuestionIds,
+                hasSubmitted = evaluation != null
+            )
+        )
+    }
 
     MaterialTheme {
         Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -52,6 +80,17 @@ fun QuizScreen(content: ContentPackage, modifier: Modifier = Modifier) {
                     Text("Correct questions: ${correctQuestionIds.size} / ${content.questions.size}")
                     Text("Attempts: $attempts")
                     Text("Package: ${content.title}")
+                    Button(
+                        onClick = {
+                            progressStore.clear(content.packageId)
+                            questionIndex = 0
+                            response = ""
+                            attempts = 0
+                            correctQuestionIds = emptySet()
+                            evaluation = null
+                        },
+                        modifier = Modifier.testTag("restart_practice")
+                    ) { Text("Practice again") }
                 }
             } else {
                 val question = content.questions[questionIndex]
@@ -139,7 +178,7 @@ fun QuizScreen(content: ContentPackage, modifier: Modifier = Modifier) {
                                 val result = QuizEngine.evaluate(question, response)
                                 evaluation = result
                                 if (result.outcome != QuizOutcome.EMPTY_ANSWER) attempts += 1
-                                if (result.isCorrect) correctQuestionIds += question.id
+                                if (result.isCorrect) correctQuestionIds = correctQuestionIds + question.id
                             },
                             enabled = evaluation?.isCorrect != true && response.isNotBlank(),
                             modifier = Modifier.weight(1f).testTag("submit_answer")
