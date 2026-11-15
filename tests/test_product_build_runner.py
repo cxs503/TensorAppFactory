@@ -32,7 +32,7 @@ class ProductBuildRunnerTests(unittest.TestCase):
             self.assertEqual(result["status"], "passed")
             self.assertEqual(result["product_id"], "hello-tensor")
             self.assertEqual(len(result["sha256"]), 64)
-            self.assertTrue(Path(result["artifact"]).is_file())
+            self.assertTrue((output / result["artifact"]).is_file())
             self.assertEqual(json.loads(result_file.read_text())["sha256"], result["sha256"])
             self.assertTrue((output / "build.log").is_file())
 
