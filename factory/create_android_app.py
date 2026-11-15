@@ -13,8 +13,10 @@ from pathlib import Path
 
 try:
     from .validate_manifest import validate_manifest
+    from .validate_android_features import validate_android_features
 except ImportError:  # Direct script execution
     from validate_manifest import validate_manifest
+    from validate_android_features import validate_android_features
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,6 +42,9 @@ def create_android_app(manifest_path: Path, output_dir: Path) -> list[str]:
     product = manifest["product"]
     if "android" not in product["platforms"]:
         return ["product.platforms must include 'android'"]
+    feature_errors = validate_android_features(product["features"])
+    if feature_errors:
+        return [f"features: {error}" for error in feature_errors]
 
     destination = output_dir.expanduser().resolve()
     template = TEMPLATE.resolve()
