@@ -1,13 +1,12 @@
 package dev.tensorappfactory.reference
 
+import androidx.activity.compose.setContent
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import android.content.Context
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class QuizScreenTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<MainActivity>()
 
     private val content = ContentPackage(
         schemaVersion = "1.0",
@@ -50,9 +49,9 @@ class QuizScreenTest {
 
     @Test
     fun learnerCanAnswerRetryAndFinishQuiz() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        val context = composeRule.activity
         QuizProgressStore(context).clear(content.packageId)
-        composeRule.setContent { QuizScreen(content) }
+        composeRule.activity.setContent { QuizScreen(content) }
 
         composeRule.onNodeWithText("Choose the correct option").assertIsDisplayed()
         composeRule.onNodeWithTag("answer_option_B").performClick()
@@ -70,14 +69,14 @@ class QuizScreenTest {
         composeRule.onNodeWithText("Correct questions: 2 / 2").assertIsDisplayed()
         composeRule.onNodeWithText("Attempts: 2").assertIsDisplayed()
         composeRule.waitForIdle()
-        assertEquals(2, QuizProgressStore(context).load(content.packageId).attempts)
-        assertTrue(QuizProgressStore(context).load(content.packageId).correctQuestionIds.containsAll(setOf("q1", "q2")))
+        val saved = QuizProgressStore(context).load(content.packageId)
+        assertEquals(2, saved.attempts)
+        assertTrue(saved.correctQuestionIds.containsAll(setOf("q1", "q2")))
     }
 
     @Test
     fun progressStoreRestoresCurrentAnswerAndResults() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val store = QuizProgressStore(context)
+        val store = QuizProgressStore(composeRule.activity)
         store.clear("restore-test")
         store.save(
             "restore-test",
