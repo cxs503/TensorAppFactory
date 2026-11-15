@@ -14,7 +14,8 @@ data class ContentQuestion(
     val answer: String,
     val acceptedAnswers: List<String>,
     val maxAnswerWords: Int?,
-    val explanation: String
+    val explanation: String,
+    val requiredAnswerGroups: List<List<String>> = emptyList()
 )
 
 data class ContentPackage(
@@ -65,6 +66,7 @@ object ContentPackageLoader {
                 val answer = item.optString("answer")
                 require(answer.isNotBlank()) { "question[$index] answer is empty" }
                 val accepted = item.optJSONArray("accepted_answers").toStringList()
+                val groups = item.optJSONArray("required_answer_groups").toStringGroups()
                 val maxWords = if (item.has("max_answer_words")) item.optInt("max_answer_words", -1) else null
                 val explanation = item.optString("explanation")
                 require(explanation.isNotBlank()) { "question[$index] explanation is empty" }
@@ -76,11 +78,16 @@ object ContentPackageLoader {
                     ContentQuestionType.TRUE_FALSE_NOT_GIVEN ->
                         require(answer in setOf("TRUE", "FALSE", "NOT GIVEN")) { "question[$index] has invalid TFNG answer" }
                     ContentQuestionType.SHORT_ANSWER -> {
-                        require(accepted.isNotEmpty()) { "question[$index] requires accepted_answers" }
+                        require(accepted.isNotEmpty() || groups.isNotEmpty()) {
+                            "question[$index] requires accepted_answers or required_answer_groups"
+                        }
+                        require(groups.all { group -> group.all { it.isNotBlank() } }) {
+                            "question[$index] required_answer_groups must contain non-empty phrases"
+                        }
                         require(maxWords == null || maxWords > 0) { "question[$index] max_answer_words must be positive" }
                     }
                 }
-                ContentQuestion(id, type, prompt, options, answer, accepted, maxWords, explanation)
+                ContentQuestion(id, type, prompt, options, answer, accepted, maxWords, explanation, groups)
             }
             return ContentPackage("1.0", packageId, title, language, questions)
         } catch (error: ContentPackageException) {
@@ -93,5 +100,12 @@ object ContentPackageLoader {
     private fun JSONArray?.toStringList(): List<String> {
         if (this == null) return emptyList()
         return (0 until length()).map { getString(it) }
+    }
+
+    private fun JSONArray?.toStringGroups(): List<List<String>> {
+        if (this == null) return emptyList()
+        return (0 until length()).map { index ->
+            getJSONArray(index).toStringList()
+        }
     }
 }
