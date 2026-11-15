@@ -10,7 +10,10 @@ import shutil
 import sys
 from pathlib import Path
 
-from validate_manifest import validate_manifest
+try:
+    from .validate_manifest import validate_manifest
+except ImportError:  # Direct script execution
+    from validate_manifest import validate_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
