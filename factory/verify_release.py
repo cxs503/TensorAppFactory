@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -49,13 +50,14 @@ def verify_release(
     build, build_error = read_json(build_result_path)
     acceptance, acceptance_error = read_json(acceptance_result_path)
 
-    product = manifest.get("product", {}) if manifest else {}
-    product_id = product.get("id")
+    product = manifest.get("product") if manifest else None
+    product_id = product.get("id") if isinstance(product, dict) else None
+    delivery = manifest.get("delivery") if manifest else None
+    criteria_spec = delivery.get("acceptance_criteria", []) if isinstance(delivery, dict) else []
     required = [
-        item.get("id")
-        for item in manifest.get("delivery", {}).get("acceptance_criteria", [])
+        item["id"] for item in criteria_spec
         if isinstance(item, dict) and isinstance(item.get("id"), str)
-    ] if manifest else []
+    ] if isinstance(criteria_spec, list) else []
 
     build_status = build.get("status", "failed") if build else "failed"
     acceptance_status = acceptance.get("status") if acceptance else None
@@ -84,10 +86,17 @@ def verify_release(
         failures.append("product acceptance status is not passed")
 
     artifact_verified = False
-    artifact_sha256 = build.get("sha256") if build else None
-    if build and build_status == "passed" and build.get("project_dir") and build.get("artifact"):
-        project_dir = Path(build["project_dir"]).resolve()
-        artifact_path = (project_dir / build["artifact"]).resolve()
+    raw_artifact_hash = build.get("sha256") if build else None
+    artifact_sha256 = (
+        raw_artifact_hash
+        if isinstance(raw_artifact_hash, str) and re.fullmatch(r"[a-f0-9]{64}", raw_artifact_hash)
+        else None
+    )
+    project_dir_value = build.get("project_dir") if build else None
+    artifact_value = build.get("artifact") if build else None
+    if build_status == "passed" and isinstance(project_dir_value, str) and isinstance(artifact_value, str):
+        project_dir = Path(project_dir_value).resolve()
+        artifact_path = (project_dir / artifact_value).resolve()
         try:
             artifact_path.relative_to(project_dir)
         except ValueError:
@@ -96,18 +105,26 @@ def verify_release(
             if not artifact_path.is_file():
                 failures.append("built APK artifact is missing")
             else:
-                actual_hash = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
-                if actual_hash != build.get("sha256"):
-                    failures.append("built APK SHA-256 does not match build result")
+                try:
+                    actual_hash = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+                except OSError as exc:
+                    failures.append(f"built APK cannot be read: {exc}")
                 else:
-                    artifact_verified = True
+                    if actual_hash != artifact_sha256:
+                        failures.append("built APK SHA-256 does not match build result")
+                    else:
+                        artifact_verified = True
     else:
         failures.append("build result does not identify a passed APK artifact")
 
     accepted = acceptance.get("criteria", []) if acceptance else []
+    if not isinstance(accepted, list):
+        accepted = []
     accepted_by_id: dict[str, dict] = {}
     for item in accepted:
-        criterion_id = item.get("criterion_id")
+        if not isinstance(item, dict) or not isinstance(item.get("criterion_id"), str):
+            continue
+        criterion_id = item["criterion_id"]
         if criterion_id in accepted_by_id:
             failures.append(f"duplicate acceptance evidence for criterion {criterion_id}")
         accepted_by_id[criterion_id] = item
@@ -137,10 +154,10 @@ def verify_release(
     result = {
         "schema_version": "1.0",
         "status": "release_ready" if not failures and artifact_verified else "blocked",
-        "product_id": product_id,
+        "product_id": product_id if isinstance(product_id, str) else None,
         "build_status": build_status if build_status in {"passed", "failed"} else "failed",
         "acceptance_status": acceptance_status if acceptance_status in {"passed", "failed"} else None,
-        "artifact_sha256": artifact_sha256 if isinstance(artifact_sha256, str) else None,
+        "artifact_sha256": artifact_sha256,
         "artifact_verified": artifact_verified,
         "required_criteria": sorted(required),
         "passed_criteria": passed_criteria,
