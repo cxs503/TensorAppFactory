@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "platform": "android",
+  "features": [
+    {
+      "id": "product-identity-home",
+      "status": "implemented",
+      "description": "Single home screen rendering the product display name and summary from Android string resources.",
+      "evidence": [
+        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt",
+        "templates/android-native/app/src/main/res/values/strings.xml"
+      ]
+    },
+    {
+      "id": "launch-screen",
+      "status": "planned",
+      "description": "Dedicated branded launch/splash screen; not yet generated."
+    },
+    {
+      "id": "basic-navigation",
+      "status": "planned",
+      "description": "Multi-screen navigation graph and destinations; not yet generated."
+    },
+    {
+      "id": "localized-settings",
+      "status": "planned",
+      "description": "Runtime language selection and persisted locale preference; not yet generated."
+    },
+    {
+      "id": "progress-persistence",
+      "status": "planned",
+      "description": "Reusable local progress storage and resume flow; not yet generated."
+    },
+    {
+      "id": "content-package-loader",
+      "status": "planned",
+      "description": "Versioned content package loading and validation; not yet generated."
+    },
+    {
+      "id": "quiz-engine",
+      "status": "planned",
+      "description": "Reusable question rendering, deterministic scoring, and attempt tracking; not yet generated."
+    }
+  ]
+}
