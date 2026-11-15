@@ -1,0 +1,10 @@
+{
+  "content_pack_id": "ielts-academic-reading-original-v0.1",
+  "pack_version": "0.1.0",
+  "canonical_repository": "cxs503/TensorProductFactory",
+  "canonical_path": "benchmarks/english-exam-coach/fixtures/reading-original-v0.1.json",
+  "canonical_revision": "bb59f35a49b5e346cc0f174a34eeb1062250bb40",
+  "canonical_git_blob_sha": "efd5fb8413f35897cb30f3fd7b5d60058dec858f",
+  "bundled_path": "products/english-exam-coach/android/app/src/main/assets/reading-original-v0.1.json",
+  "sync_policy": "byte-identical; update revision and blob SHA whenever canonical content changes"
+}
