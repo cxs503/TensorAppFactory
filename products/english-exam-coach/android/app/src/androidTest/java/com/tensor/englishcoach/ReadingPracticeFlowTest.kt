@@ -41,7 +41,7 @@ class ReadingPracticeFlowTest {
 
         composeRule.onNodeWithText("Reading practice · Question 3 of 3").assertIsDisplayed()
         composeRule.onNodeWithText("Your answer (up to 6 words)").performScrollTo().performTextInput(
-            "reliable access to land and long-term support"
+            "reliable access to land; long-term support"
         )
         composeRule.onNodeWithText("Check answer").performScrollTo().performClick()
         composeRule.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
