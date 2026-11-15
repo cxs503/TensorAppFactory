@@ -33,13 +33,13 @@ class ReadingPracticeFlowTest {
         composeRule.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Next question").performScrollTo().performClick()
 
-        composeRule.onNodeWithText("Reading practice · Question 2 of 3").assertIsDisplayed()
+        composeRule.onNodeWithText("Reading practice · Question 2 of 3").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithTag("option_NOT GIVEN").performClick()
         composeRule.onNodeWithText("Check answer").performScrollTo().performClick()
         composeRule.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Next question").performScrollTo().performClick()
 
-        composeRule.onNodeWithText("Reading practice · Question 3 of 3").assertIsDisplayed()
+        composeRule.onNodeWithText("Reading practice · Question 3 of 3").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Your answer (up to 6 words)").performScrollTo().performTextInput(
             "reliable access to land; long-term support"
         )
