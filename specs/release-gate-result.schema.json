@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorappfactory.dev/schemas/release-gate-result.schema.json",
+  "title": "TensorAppFactory Release Gate Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "product_id",
+    "build_status",
+    "acceptance_status",
+    "artifact_sha256",
+    "artifact_verified",
+    "required_criteria",
+    "passed_criteria",
+    "failures"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "enum": [
+        "release_ready",
+        "blocked"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "build_status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "acceptance_status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "passed",
+        "failed",
+        null
+      ]
+    },
+    "artifact_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "artifact_verified": {
+      "type": "boolean"
+    },
+    "required_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "passed_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "release_ready"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "build_status": {
+            "const": "passed"
+          },
+          "acceptance_status": {
+            "const": "passed"
+          },
+          "artifact_verified": {
+            "const": true
+          },
+          "failures": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}
