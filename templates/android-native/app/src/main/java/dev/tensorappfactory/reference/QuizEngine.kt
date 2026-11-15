@@ -34,8 +34,19 @@ object QuizEngine {
                 response.trim() == question.answer.trim()
             ContentQuestionType.TRUE_FALSE_NOT_GIVEN ->
                 normalizeLabel(response) == normalizeLabel(question.answer)
-            ContentQuestionType.SHORT_ANSWER ->
-                question.acceptedAnswers.any { normalize(it) == normalized }
+            ContentQuestionType.SHORT_ANSWER -> {
+                if (question.requiredAnswerGroups.isNotEmpty()) {
+                    val paddedResponse = " $normalized "
+                    question.requiredAnswerGroups.all { group ->
+                        group.any { phrase ->
+                            val normalizedPhrase = normalize(phrase)
+                            normalizedPhrase.isNotEmpty() && paddedResponse.contains(" $normalizedPhrase ")
+                        }
+                    }
+                } else {
+                    question.acceptedAnswers.any { normalize(it) == normalized }
+                }
+            }
         }
         return QuizEvaluation(
             if (correct) QuizOutcome.CORRECT else QuizOutcome.INCORRECT,
