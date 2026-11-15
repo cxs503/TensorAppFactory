@@ -56,6 +56,18 @@ class AndroidProjectGeneratorTests(unittest.TestCase):
             self.assertTrue(any("include 'android'" in error for error in errors))
             self.assertFalse(output.exists())
 
+
+    def test_rejects_manifest_claiming_unimplemented_android_feature(self):
+        source = json.loads(REFERENCE.read_text(encoding="utf-8"))
+        source["product"]["features"] = ["basic-navigation"]
+        with tempfile.TemporaryDirectory() as directory:
+            manifest_path = Path(directory) / "planned-feature.json"
+            manifest_path.write_text(json.dumps(source), encoding="utf-8")
+            output = Path(directory) / "generated"
+            errors = create_android_app(manifest_path, output)
+            self.assertTrue(any("not implemented" in error for error in errors))
+            self.assertFalse(output.exists())
+
     def test_rejects_nonempty_output_directory(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "occupied"
