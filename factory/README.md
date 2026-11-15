@@ -13,13 +13,21 @@ python -m unittest discover -s tests -p 'test_*.py'
 python factory/create_android_app.py specs/examples/hello-product.json --output-dir /tmp/hello-tensor
 cd /tmp/hello-tensor
 gradle testDebugUnitTest assembleDebug
+
+# Or run the complete manifest-to-APK pipeline and emit evidence JSON:
+cd -
+python factory/build_product.py specs/examples/hello-product.json \
+  --output-dir /tmp/hello-tensor-build \
+  --result-file /tmp/hello-tensor-build-result.json
 ```
+
+The `build_product.py` runner composes validation, project generation, Gradle unit tests, APK assembly, SHA-256 hashing, build-log capture, and a machine-readable result JSON. A successful result includes product ID, manifest SHA-256, relative APK path, APK SHA-256, command, exit code, and build-log path. CI publishes the result JSON beside the generated APK.
 
 The generator only uses the approved `templates/android-native` template. It rejects invalid manifests, products without Android in their platform list, and non-empty output directories. It derives a Java-safe package name from the product ID, substitutes the display name and project name, relocates the Kotlin source to its generated package path, and copies the validated manifest into the generated project as `product.json`.
 
 ## Current boundary
 
-This first generator creates a buildable Android shell. It does not generate product-specific business logic, screens, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
+This first generator creates a buildable Android shell. The template now renders the product name and summary through Android string resources, with XML-safe escaping for special characters. It does not generate product-specific business logic, screens, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
 
 ## Next components
 
