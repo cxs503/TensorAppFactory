@@ -18,7 +18,13 @@ except ImportError:  # Direct script execution
     from create_android_app import create_android_app
 
 
+ROOT = Path(__file__).resolve().parents[1]
+RESULT_SCHEMA = ROOT / "specs" / "build-result.schema.json"
+
+
 def write_result(path: Path, payload: dict) -> None:
+    schema = json.loads(RESULT_SCHEMA.read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(payload)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
