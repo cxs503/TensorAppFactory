@@ -33,8 +33,13 @@
     },
     {
       "id": "content-package-loader",
-      "status": "planned",
-      "description": "Versioned content package loading and validation; not yet generated."
+      "status": "implemented",
+      "description": "Loads and validates versioned JSON content packages, including unique question IDs and single-choice, TFNG, and short-answer invariants.",
+      "evidence": [
+        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/ContentPackage.kt",
+        "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/ContentPackageLoaderTest.kt",
+        "specs/android-content-package.schema.json"
+      ]
     },
     {
       "id": "quiz-engine",
