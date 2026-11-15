@@ -27,6 +27,18 @@ class ContentPackageLoaderTest {
         assertEquals(3, result.questions[2].maxAnswerWords)
     }
 
+    @Test fun parsesRequiredAnswerGroups() {
+        val packageJson = valid.replace(
+            "\"accepted_answers\":[\"green field\"]",
+            "\"required_answer_groups\":[[\"green field\",\"a green field\"],[\"fertile soil\"]]"
+        )
+        val result = ContentPackageLoader.parse(packageJson)
+        assertEquals(
+            listOf(listOf("green field", "a green field"), listOf("fertile soil")),
+            result.questions[2].requiredAnswerGroups
+        )
+    }
+
     @Test fun rejectsUnsupportedSchemaVersion() {
         assertThrows(ContentPackageException.Invalid::class.java) {
             ContentPackageLoader.parse(valid.replace("\"1.0\"", "\"2.0\""))
@@ -43,7 +55,7 @@ class ContentPackageLoaderTest {
         assertThrows(ContentPackageException.Invalid::class.java) { ContentPackageLoader.parse(invalid) }
     }
 
-    @Test fun rejectsMissingShortAnswerAlternatives() {
+    @Test fun rejectsMissingShortAnswerAlternativesAndGroups() {
         val invalid = valid.replace(",\"accepted_answers\":[\"green field\"]", "")
         assertThrows(ContentPackageException.Invalid::class.java) { ContentPackageLoader.parse(invalid) }
     }
