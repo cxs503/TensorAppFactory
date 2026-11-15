@@ -55,6 +55,10 @@ Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
 This repository now has an executable manifest validator and an Android project generator, with CI coverage for generated-project builds. Product-specific feature implementation, broader template catalogues, parallel production jobs, release signing, store publication, and marketplace operations remain future milestones.
 
+## Release readiness
+
+APK generation and release approval are separate states. `factory/verify_release.py` validates the build result, verifies the manifest and APK hashes, and requires passing evidence for every criterion in the product manifest. Its output is governed by `specs/release-gate-result.schema.json`; a build-only artifact is never automatically marked release-ready.
+
 ## Quality rule
 
 A successful build is not proof of a useful product. Every product must pass its declared functional acceptance criteria; a release candidate must include test evidence and a reproducible artifact.
