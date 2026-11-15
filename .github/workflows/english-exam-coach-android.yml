@@ -43,13 +43,13 @@ jobs:
       - name: Run end-to-end flow on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          target: google_apis
+          api-level: 34
+          target: default
           arch: x86_64
           profile: pixel_2
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
-          script: cd products/english-exam-coach/android && mkdir -p ci-diagnostics && adb logcat -c && if gradle --no-daemon :app:connectedDebugAndroidTest; then echo instrumentation_status=passed > ci-diagnostics/status.txt; else echo instrumentation_status=failed > ci-diagnostics/status.txt; adb logcat -d -v threadtime > ci-diagnostics/logcat.txt || true; find app/build/outputs -maxdepth 5 -type f -print > ci-diagnostics/output-files.txt || true; find app/build/reports -maxdepth 6 -type f -print > ci-diagnostics/report-files.txt || true; exit 1; fi
+          script: cd products/english-exam-coach/android && mkdir -p ci-diagnostics && adb logcat -c && if gradle --no-daemon :app:connectedDebugAndroidTest --stacktrace; then echo instrumentation_status=passed > ci-diagnostics/status.txt; else echo instrumentation_status=failed > ci-diagnostics/status.txt; adb logcat -b all -d -v threadtime > ci-diagnostics/logcat-all.txt || true; adb shell dumpsys activity lastanr > ci-diagnostics/last-anr.txt || true; adb shell dumpsys meminfo > ci-diagnostics/meminfo.txt || true; adb shell dumpsys cpuinfo > ci-diagnostics/cpuinfo.txt || true; find app/build/outputs -maxdepth 5 -type f -print > ci-diagnostics/output-files.txt || true; find app/build/reports -maxdepth 6 -type f -print > ci-diagnostics/report-files.txt || true; exit 1; fi
       - name: Upload emulator diagnostics
         if: always()
         uses: actions/upload-artifact@v4
