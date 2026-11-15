@@ -18,7 +18,8 @@ Android applications packaged as APKs. The initial reference app lives in `templ
 
 ## Repository map
 
-- `specs/`: product and delivery contracts.
+- `specs/`: product, delivery, and machine-readable build-result contracts.
+- `factory/`: manifest validator, Android project generator, and manifest-to-APK build runner.
 - `templates/android-native/`: minimal native Android reference application.
 - `.github/workflows/`: reproducible CI build and test pipeline.
 - `docs/`: architecture, quality gates, security, and roadmap.
@@ -30,14 +31,14 @@ The first manifest-driven generator is executable and covered by Python tests:
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -p 'test_*.py'
-python factory/create_android_app.py specs/examples/hello-product.json --output-dir /tmp/hello-tensor
-cd /tmp/hello-tensor
-gradle testDebugUnitTest assembleDebug
+python factory/build_product.py specs/examples/hello-product.json \
+  --output-dir /tmp/hello-tensor \
+  --result-file /tmp/hello-tensor-build-result.json
 ```
 
-It instantiates only the approved `templates/android-native` template, derives a Java-safe package from the product ID, applies the product display name, and preserves the validated manifest in the generated project. CI builds both the reference template and a generated project.
+The runner validates the manifest, instantiates only the approved `templates/android-native` template, derives a Java-safe package, injects the product name and summary through XML-safe resources, runs Gradle unit tests and APK assembly, captures `build.log`, and emits a machine-readable result validated against `specs/build-result.schema.json`. The result records manifest and APK SHA-256 hashes, relative artifact path, command, exit code, and failure reason. CI publishes the generated APK and result JSON together.
 
-This is a buildable Android shell generator, not yet a generator of arbitrary product-specific features or finished commercial apps.
+This is a buildable Android shell generator and reproducible build runner, not yet a generator of arbitrary product-specific features or finished commercial apps.
 
 ## Build the reference APK
 
