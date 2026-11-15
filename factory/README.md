@@ -50,6 +50,12 @@ Exit code 0 means `release_ready`; exit code 1 means `blocked`. The result contr
 
 This first generator creates a buildable Android shell. The template now renders the product name and summary through Android string resources, with XML-safe escaping for special characters. It does not generate product-specific business logic, screens, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
 
+## Versioned Android content packages
+
+The native template includes `ContentPackageLoader` and a sample asset at `app/src/main/assets/content/demo-reading.json`. The loader accepts schema version `1.0`, validates package identity and language, rejects duplicate question IDs, and enforces type-specific rules for single-choice, TRUE/FALSE/NOT GIVEN, and short-answer questions. Short-answer entries can carry accepted alternatives and a maximum word count. The corresponding JSON Schema is `specs/android-content-package.schema.json`; JVM tests cover valid mixed packages and invalid version, duplicate ID, invalid choice answer, and missing accepted-answer cases.
+
+This is a reusable data-loading and validation capability, not yet a complete learner-facing quiz UI. The feature catalog records only the loader as implemented; the quiz engine remains planned.
+
 ## Feature implementation contract
 
 Every Android feature named in a product manifest must exist in `specs/android-feature-catalog.json` with `status: implemented`. Planned or unknown features block project generation. When a feature is implemented, update its catalog status only in the same change that adds its generator/template implementation and automated tests. The catalog is a capability gate, not a roadmap promise.
