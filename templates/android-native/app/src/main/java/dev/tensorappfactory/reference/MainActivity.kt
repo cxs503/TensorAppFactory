@@ -12,26 +12,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val content = runCatching {
+            assets.open("content/demo-reading.json").use(ContentPackageLoader::load)
+        }.getOrNull()
         setContent {
-            MaterialTheme {
-                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(24.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineLarge)
-                        Text(
-                            stringResource(R.string.product_summary),
-                            modifier = Modifier.padding(top = 12.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+            if (content != null) {
+                QuizScreen(content)
+            } else {
+                MaterialTheme {
+                    Surface(Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(24.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Content unavailable", style = MaterialTheme.typography.headlineMedium)
+                            Text("Add a valid content package at app/src/main/assets/content/demo-reading.json.")
+                        }
                     }
                 }
             }
