@@ -34,7 +34,7 @@
     {
       "id": "content-package-loader",
       "status": "implemented",
-      "description": "Loads and validates versioned JSON content packages, including unique question IDs and single-choice, TFNG, and short-answer invariants.",
+      "description": "Loads and validates versioned JSON content packages, including unique question IDs, question-type invariants, and alternative or multi-point short-answer keys.",
       "evidence": [
         "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/ContentPackage.kt",
         "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/ContentPackageLoaderTest.kt",
@@ -44,7 +44,7 @@
     {
       "id": "quiz-engine",
       "status": "implemented",
-      "description": "Deterministic evaluation for single-choice, TFNG, and short-answer questions, including word limits and in-memory attempt tracking; UI rendering and persistent progress remain separate features.",
+      "description": "Deterministic evaluation for single-choice, TFNG, and short-answer questions, including word limits, all-required-point matching with accepted variants, and in-memory attempt tracking.",
       "evidence": [
         "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizEngine.kt",
         "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/QuizEngineTest.kt"
