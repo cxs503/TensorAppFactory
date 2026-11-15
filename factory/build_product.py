@@ -33,8 +33,11 @@ def build_product(
         "status": "failed",
         "product_id": None,
         "project_dir": str(output_dir.resolve()),
+        "manifest_sha256": None,
         "artifact": None,
         "sha256": None,
+        "build_log": None,
+        "command": None,
         "gradle_exit_code": None,
         "failure_reason": None,
     }
@@ -47,6 +50,7 @@ def build_product(
         write_result(result_path, base)
         return 1, base
 
+    base["manifest_sha256"] = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     errors = create_android_app(manifest_path, output_dir)
     if errors:
         base["failure_reason"] = "; ".join(errors)
@@ -54,6 +58,7 @@ def build_product(
         return 1, base
 
     command = [gradle_command, "--no-daemon", "testDebugUnitTest", "assembleDebug"]
+    base["command"] = command
     try:
         completed = subprocess.run(
             command,
@@ -73,6 +78,7 @@ def build_product(
         + "\nSTDERR:\n" + completed.stderr,
         encoding="utf-8",
     )
+    base["build_log"] = "build.log"
     base["gradle_exit_code"] = completed.returncode
     if completed.returncode != 0:
         base["failure_reason"] = "Gradle test/build command failed; see build.log"
@@ -88,7 +94,7 @@ def build_product(
     digest = hashlib.sha256(apk_path.read_bytes()).hexdigest()
     base.update({
         "status": "passed",
-        "artifact": str(apk_path.resolve()),
+        "artifact": str(apk_path.relative_to(output_dir)),
         "sha256": digest,
     })
     write_result(result_path, base)
