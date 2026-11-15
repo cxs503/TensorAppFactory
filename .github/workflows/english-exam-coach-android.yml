@@ -34,7 +34,29 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
-          script: cd products/english-exam-coach/android && gradle --no-daemon :app:connectedDebugAndroidTest
+          script: |
+            mkdir -p products/english-exam-coach/android/ci-diagnostics
+            adb logcat -c
+            cd products/english-exam-coach/android
+            if gradle --no-daemon :app:connectedDebugAndroidTest; then
+              echo "instrumentation_status=passed" > ci-diagnostics/status.txt
+            else
+              echo "instrumentation_status=failed" > ci-diagnostics/status.txt
+              adb logcat -d -v threadtime > ci-diagnostics/logcat.txt || true
+              find app/build/outputs -maxdepth 5 -type f -print > ci-diagnostics/output-files.txt || true
+              find app/build/reports -maxdepth 6 -type f -print > ci-diagnostics/report-files.txt || true
+              exit 1
+            fi
+      - name: Upload emulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-exam-coach-emulator-diagnostics
+          if-no-files-found: ignore
+          path: |
+            products/english-exam-coach/android/ci-diagnostics/**
+            products/english-exam-coach/android/app/build/reports/androidTests/**
+            products/english-exam-coach/android/app/build/outputs/androidTest-results/**
       - name: Build debug APK
         working-directory: products/english-exam-coach/android
         run: gradle --no-daemon :app:assembleDebug
