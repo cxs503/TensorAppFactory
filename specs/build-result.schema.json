@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorappfactory.dev/schemas/build-result.schema.json",
+  "title": "TensorAppFactory Build Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result_schema_version",
+    "status",
+    "product_id",
+    "project_dir",
+    "manifest_sha256",
+    "artifact",
+    "sha256",
+    "build_log",
+    "command",
+    "gradle_exit_code",
+    "failure_reason"
+  ],
+  "properties": {
+    "result_schema_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "product_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project_dir": {
+      "type": "string",
+      "minLength": 1
+    },
+    "manifest_sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "artifact": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "build_log": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "command": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "gradle_exit_code": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "failure_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "manifest_sha256": {
+            "type": "string"
+          },
+          "artifact": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "build_log": {
+            "type": "string"
+          },
+          "command": {
+            "type": "array"
+          },
+          "gradle_exit_code": {
+            "const": 0
+          },
+          "failure_reason": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "failure_reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}
