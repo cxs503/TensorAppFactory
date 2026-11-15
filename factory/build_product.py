@@ -27,7 +27,7 @@ def build_product(
     result_file: Path | None = None,
     gradle_command: str = "gradle",
 ) -> tuple[int, dict]:
-    result_path = result_file or (output_dir / "build-result.json")
+    result_path = result_file or output_dir.with_name(f"{output_dir.name}-build-result.json")
     base = {
         "result_schema_version": "1.0",
         "status": "failed",
