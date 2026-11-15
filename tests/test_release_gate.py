@@ -99,6 +99,15 @@ class ReleaseGateTests(unittest.TestCase):
         self.assertFalse(result["artifact_verified"])
         self.assertTrue(any("SHA-256 does not match" in item for item in result["failures"]))
 
+    def test_manifest_change_after_build_blocks_release(self):
+        self.manifest["product"]["name"] = "Changed after build"
+        self.manifest_path.write_text(json.dumps(self.manifest), encoding="utf-8")
+        code, result = verify_release(
+            self.manifest_path, self.build_path, self.acceptance_path, self.result_path
+        )
+        self.assertEqual(code, 1)
+        self.assertTrue(any("manifest SHA-256" in item for item in result["failures"]))
+
     def test_build_product_id_mismatch_blocks_release(self):
         self.build["product_id"] = "different-product"
         self._write_inputs()
