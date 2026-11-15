@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "templates/android-native/**"
+      - "factory/**"
+      - "specs/**"
+      - "tests/**"
       - ".github/workflows/android-apk.yml"
   pull_request:
     paths:
@@ -33,6 +36,8 @@ jobs:
           python -m pip install -r requirements-dev.txt
           python factory/validate_manifest.py specs/examples/hello-product.json
           python -m unittest discover -s tests -p 'test_*.py'
+      - name: Generate product project from manifest
+        run: python factory/create_android_app.py specs/examples/hello-product.json --output-dir /tmp/hello-tensor-generated
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -45,6 +50,10 @@ jobs:
       - name: Build and test
         working-directory: templates/android-native
         run: gradle --no-daemon testDebugUnitTest assembleDebug
+      - name: Build generated product project
+        run: gradle --no-daemon -p /tmp/hello-tensor-generated testDebugUnitTest assembleDebug
+      - name: Verify generated APK exists
+        run: test -s /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk
       - name: Verify APK exists and hash it
         run: |
           test -s templates/android-native/app/build/outputs/apk/debug/app-debug.apk
@@ -53,6 +62,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hello-tensor-debug-apk
-          path: templates/android-native/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            templates/android-native/app/build/outputs/apk/debug/app-debug.apk
+            /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
