@@ -74,5 +74,6 @@ jobs:
           path: |
             templates/android-native/app/build/outputs/apk/debug/app-debug.apk
             generated-artifacts/hello-tensor-generated-debug.apk
+            generated-artifacts/build-result.json
           if-no-files-found: error
           retention-days: 14
