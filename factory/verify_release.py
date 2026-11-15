@@ -150,7 +150,7 @@ def verify_release(
     gate_schema = json.loads(GATE_SCHEMA.read_text(encoding="utf-8"))
     Draft202012Validator(gate_schema).validate(result)
     result_file.parent.mkdir(parents=True, exist_ok=True)
-    result_file.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    result_file.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return (0 if result["status"] == "release_ready" else 1), result
 
 
