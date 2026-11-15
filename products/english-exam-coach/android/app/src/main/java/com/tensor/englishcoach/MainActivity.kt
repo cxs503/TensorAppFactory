@@ -66,7 +66,7 @@ internal fun isCorrectShortAnswer(response: String, expectedPhrases: List<String
     val normalized = response.lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
     return expectedPhrases.isNotEmpty() && expectedPhrases.all { phrase ->
         val expected = phrase.lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
-        expected.isNotEmpty() && Regex("(^| )${Regex.escape(expected)}( |$)").containsMatchIn(normalized)
+        expected.isNotEmpty() && " $normalized ".contains(" $expected ")
     }
 }
 
