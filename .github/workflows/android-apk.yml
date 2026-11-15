@@ -54,6 +54,16 @@ jobs:
           python factory/build_product.py specs/examples/hello-product.json \
             --output-dir /tmp/hello-tensor-generated \
             --result-file generated-artifacts/build-result.json
+      - name: Run Compose UI instrumentation on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: cd templates/android-native && gradle --no-daemon connectedDebugAndroidTest
       - name: Build and test
         working-directory: templates/android-native
         run: gradle --no-daemon testDebugUnitTest assembleDebug
