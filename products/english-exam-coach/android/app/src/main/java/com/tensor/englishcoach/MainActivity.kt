@@ -64,9 +64,15 @@ private data class ReadingQuestion(
 internal fun isCorrectAnswer(selected: String?, expected: String): Boolean =
     selected?.trim()?.equals(expected.trim(), ignoreCase = true) == true
 
-internal fun extractMaxWordCount(instruction: String): Int? =
-    Regex("no more than (\\d+) words", RegexOption.IGNORE_CASE)
-        .find(instruction)?.groupValues?.getOrNull(1)?.toIntOrNull()
+internal fun extractMaxWordCount(instruction: String): Int? {
+    val token = Regex("no more than ([\\w-]+) words", RegexOption.IGNORE_CASE)
+        .find(instruction)?.groupValues?.getOrNull(1)?.lowercase(Locale.ROOT) ?: return null
+    val numberWords = mapOf(
+        "one" to 1, "two" to 2, "three" to 3, "four" to 4, "five" to 5,
+        "six" to 6, "seven" to 7, "eight" to 8, "nine" to 9, "ten" to 10
+    )
+    return token.toIntOrNull() ?: numberWords[token]
+}
 
 internal fun isWithinWordLimit(response: String, maxWords: Int?): Boolean {
     if (maxWords == null) return true
