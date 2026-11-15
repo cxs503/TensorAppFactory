@@ -36,6 +36,11 @@ class AnswerScoringTest {
     }
 
     @Test
+    fun extractsNumericMaximumWordCount() {
+        assertTrue(extractMaxWordCount("Answer using no more than 6 words.") == 6)
+    }
+
+    @Test
     fun acceptsAnswerWithinWordLimit() {
         assertTrue(isWithinWordLimit("reliable access to land and support", 6))
     }
