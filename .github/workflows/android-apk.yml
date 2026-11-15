@@ -39,12 +39,6 @@ jobs:
           python -m pip install -r requirements-dev.txt
           python factory/validate_manifest.py specs/examples/hello-product.json
           python -m unittest discover -s tests -p 'test_*.py'
-      - name: Build product from manifest and emit evidence
-        run: |
-          mkdir -p generated-artifacts
-          python factory/build_product.py specs/examples/hello-product.json \
-            --output-dir /tmp/hello-tensor-generated \
-            --result-file generated-artifacts/build-result.json
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -54,6 +48,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Build product from manifest and emit evidence
+        run: |
+          mkdir -p generated-artifacts
+          python factory/build_product.py specs/examples/hello-product.json \
+            --output-dir /tmp/hello-tensor-generated \
+            --result-file generated-artifacts/build-result.json
       - name: Build and test
         working-directory: templates/android-native
         run: gradle --no-daemon testDebugUnitTest assembleDebug
