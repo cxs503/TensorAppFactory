@@ -76,6 +76,14 @@ def verify_release(
     elif acceptance:
         failures.extend(schema_errors(acceptance, ACCEPTANCE_SCHEMA, "acceptance result"))
 
+    if build and manifest and isinstance(build.get("manifest_sha256"), str):
+        try:
+            actual_manifest_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+        except OSError as exc:
+            failures.append(f"product manifest cannot be hashed: {exc}")
+        else:
+            if build["manifest_sha256"] != actual_manifest_hash:
+                failures.append("build result manifest SHA-256 does not match product manifest")
     if build and product_id and build.get("product_id") != product_id:
         failures.append("build result product_id does not match product manifest")
     if acceptance and product_id and acceptance.get("product_id") != product_id:
