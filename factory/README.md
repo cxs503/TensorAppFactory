@@ -25,6 +25,27 @@ The `build_product.py` runner composes validation, project generation, Gradle un
 
 The generator only uses the approved `templates/android-native` template. It rejects invalid manifests, products without Android in their platform list, and non-empty output directories. It derives a Java-safe package name from the product ID, substitutes the display name and project name, relocates the Kotlin source to its generated package path, and copies the validated manifest into the generated project as `product.json`.
 
+## Release-readiness gate
+
+A successful APK build is not a release approval. The separate `factory/verify_release.py` gate requires:
+
+- A schema-valid product manifest and build-result JSON.
+- A schema-valid acceptance-result JSON for the same product.
+- Passing evidence for every acceptance criterion declared by the product manifest, with no undeclared or duplicate criteria.
+- The APK to exist inside the generated project and its actual SHA-256 to match the build result.
+
+Run it with:
+
+```bash
+python factory/verify_release.py \
+  specs/examples/hello-product.json \
+  /path/to/build-result.json \
+  /path/to/acceptance-result.json \
+  --result-file /path/to/release-gate.json
+```
+
+Exit code 0 means `release_ready`; exit code 1 means `blocked`. The result contract is `specs/release-gate-result.schema.json`. The gate is deliberately separate from APK generation: do not manufacture acceptance evidence or infer product quality from a successful compile.
+
 ## Current boundary
 
 This first generator creates a buildable Android shell. The template now renders the product name and summary through Android string resources, with XML-safe escaping for special characters. It does not generate product-specific business logic, screens, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
