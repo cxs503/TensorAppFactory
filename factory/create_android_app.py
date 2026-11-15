@@ -8,6 +8,7 @@ import json
 import re
 import shutil
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 try:
@@ -57,7 +58,6 @@ def create_android_app(manifest_path: Path, output_dir: Path) -> list[str]:
         replacements = {
             "dev.tensorappfactory.reference": package_name,
             "TensorAndroidReference": project_name,
-            "Hello Tensor": display_name,
         }
         for path in destination.rglob("*"):
             if not path.is_file() or path.suffix not in {".kt", ".kts", ".xml", ".md"}:
@@ -68,6 +68,17 @@ def create_android_app(manifest_path: Path, output_dir: Path) -> list[str]:
                 updated = updated.replace(old, new)
             if updated != original:
                 path.write_text(updated, encoding="utf-8")
+        strings_path = destination / "app" / "src" / "main" / "res" / "values" / "strings.xml"
+        strings_tree = ET.parse(strings_path)
+        strings_root = strings_tree.getroot()
+        resource_values = {
+            "app_name": display_name,
+            "product_summary": product["summary"],
+        }
+        for resource in strings_root.findall("string"):
+            if resource.get("name") in resource_values:
+                resource.text = resource_values[resource.get("name")]
+        strings_tree.write(strings_path, encoding="utf-8", xml_declaration=True)
         old_package_dir = destination / "app" / "src" / "main" / "java" / "dev" / "tensorappfactory" / "reference"
         new_package_dir = destination / "app" / "src" / "main" / "java" / Path(*package_name.split("."))
         if old_package_dir.exists():
