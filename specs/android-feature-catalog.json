@@ -2,63 +2,13 @@
   "schema_version": "1.0",
   "platform": "android",
   "features": [
-    {
-      "id": "product-identity-home",
-      "status": "implemented",
-      "description": "Single home screen rendering the product display name and summary from Android string resources.",
-      "evidence": [
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt",
-        "templates/android-native/app/src/main/res/values/strings.xml"
-      ]
-    },
-    {
-      "id": "launch-screen",
-      "status": "planned",
-      "description": "Dedicated branded launch/splash screen; not yet generated."
-    },
-    {
-      "id": "basic-navigation",
-      "status": "planned",
-      "description": "Multi-screen navigation graph and destinations; not yet generated."
-    },
-    {
-      "id": "localized-settings",
-      "status": "planned",
-      "description": "Runtime language selection and persisted locale preference; not yet generated."
-    },
-    {
-      "id": "progress-persistence",
-      "status": "planned",
-      "description": "Reusable local progress storage and resume flow; not yet generated."
-    },
-    {
-      "id": "content-package-loader",
-      "status": "implemented",
-      "description": "Loads and validates versioned JSON content packages, including unique question IDs, question-type invariants, and alternative or multi-point short-answer keys.",
-      "evidence": [
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/ContentPackage.kt",
-        "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/ContentPackageLoaderTest.kt",
-        "specs/android-content-package.schema.json"
-      ]
-    },
-    {
-      "id": "quiz-engine",
-      "status": "implemented",
-      "description": "Deterministic evaluation for single-choice, TFNG, and short-answer questions, including word limits, all-required-point matching with accepted variants, and in-memory attempt tracking.",
-      "evidence": [
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizEngine.kt",
-        "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/QuizEngineTest.kt"
-      ]
-    },
-    {
-      "id": "quiz-ui",
-      "status": "implemented",
-      "description": "Compose learner-facing quiz screen for single-choice, TFNG, and short-answer content with feedback, retry, next-question, and completion summary; progress is session-only.",
-      "evidence": [
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizScreen.kt",
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt",
-        "templates/android-native/app/src/androidTest/java/dev/tensorappfactory/reference/QuizScreenTest.kt"
-      ]
-    }
+    {"id":"product-identity-home","status":"implemented","description":"Single home screen rendering the product display name and summary from Android string resources.","evidence":["templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt","templates/android-native/app/src/main/res/values/strings.xml"]},
+    {"id":"launch-screen","status":"planned","description":"Dedicated branded launch/splash screen; not yet generated."},
+    {"id":"basic-navigation","status":"planned","description":"Multi-screen navigation graph and destinations; not yet generated."},
+    {"id":"localized-settings","status":"planned","description":"Runtime language selection and persisted locale preference; not yet generated."},
+    {"id":"progress-persistence","status":"implemented","description":"Package-scoped local progress persistence with restore of current question, response, attempt count, correct-question IDs, submission feedback, and restart/reset.","evidence":["templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizProgressStore.kt","templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizScreen.kt","templates/android-native/app/src/androidTest/java/dev/tensorappfactory/reference/QuizScreenTest.kt"]},
+    {"id":"content-package-loader","status":"implemented","description":"Loads and validates versioned JSON content packages, including unique question IDs, question-type invariants, and alternative or multi-point short-answer keys.","evidence":["templates/android-native/app/src/main/java/dev/tensorappfactory/reference/ContentPackage.kt","templates/android-native/app/src/test/java/dev/tensorappfactory/reference/ContentPackageLoaderTest.kt","specs/android-content-package.schema.json"]},
+    {"id":"quiz-engine","status":"implemented","description":"Deterministic evaluation for single-choice, TFNG, and short-answer questions, including word limits, all-required-point matching with accepted variants, and in-memory attempt tracking.","evidence":["templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizEngine.kt","templates/android-native/app/src/test/java/dev/tensorappfactory/reference/QuizEngineTest.kt"]},
+    {"id":"quiz-ui","status":"implemented","description":"Compose learner-facing quiz screen for single-choice, TFNG, and short-answer content with feedback, retry, next-question, completion summary, and saved progress.","evidence":["templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizScreen.kt","templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt","templates/android-native/app/src/androidTest/java/dev/tensorappfactory/reference/QuizScreenTest.kt"]}
   ]
 }
