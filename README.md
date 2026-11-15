@@ -23,6 +23,22 @@ Android applications packaged as APKs. The initial reference app lives in `templ
 - `.github/workflows/`: reproducible CI build and test pipeline.
 - `docs/`: architecture, quality gates, security, and roadmap.
 
+## Generate an Android product project
+
+The first manifest-driven generator is executable and covered by Python tests:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -p 'test_*.py'
+python factory/create_android_app.py specs/examples/hello-product.json --output-dir /tmp/hello-tensor
+cd /tmp/hello-tensor
+gradle testDebugUnitTest assembleDebug
+```
+
+It instantiates only the approved `templates/android-native` template, derives a Java-safe package from the product ID, applies the product display name, and preserves the validated manifest in the generated project. CI builds both the reference template and a generated project.
+
+This is a buildable Android shell generator, not yet a generator of arbitrary product-specific features or finished commercial apps.
+
 ## Build the reference APK
 
 The Android template requires JDK 17 and Gradle 8.9 (the workflow provisions both).
@@ -36,7 +52,7 @@ Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Current scope
 
-This repository is the factory foundation, not yet a self-service product generator or app marketplace. The first milestone proves one end-to-end Android build. Subsequent milestones add manifest validation, template instantiation, parallel jobs, emulator tests, signing, and release automation.
+This repository now has an executable manifest validator and an Android project generator, with CI coverage for generated-project builds. Product-specific feature implementation, broader template catalogues, parallel production jobs, release signing, store publication, and marketplace operations remain future milestones.
 
 ## Quality rule
 
