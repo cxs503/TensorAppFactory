@@ -31,6 +31,21 @@ class AnswerScoringTest {
     }
 
     @Test
+    fun extractsMaximumWordCountFromInstruction() {
+        assertTrue(extractMaxWordCount("Answer using no more than six words.") == 6)
+    }
+
+    @Test
+    fun acceptsAnswerWithinWordLimit() {
+        assertTrue(isWithinWordLimit("reliable access to land and support", 6))
+    }
+
+    @Test
+    fun rejectsAnswerOverWordLimit() {
+        assertFalse(isWithinWordLimit("reliable access to land and long-term support", 5))
+    }
+
+    @Test
     fun unansweredQuestionIsNotCorrect() {
         assertFalse(isCorrectAnswer(null, "B"))
     }
