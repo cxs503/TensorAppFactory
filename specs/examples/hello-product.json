@@ -5,7 +5,7 @@
     "name": "Hello Tensor",
     "summary": "A reference app that verifies the Android build and artifact delivery pipeline.",
     "platforms": ["android"],
-    "features": ["launch-screen", "basic-navigation"],
+    "features": ["product-identity-home"],
     "target_users": ["factory developers"],
     "monetization": "internal"
   },
