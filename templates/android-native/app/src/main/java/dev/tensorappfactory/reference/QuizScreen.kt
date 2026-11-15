@@ -69,11 +69,12 @@ fun QuizScreen(content: ContentPackage, modifier: Modifier = Modifier) {
                     when (question.type) {
                         ContentQuestionType.SINGLE_CHOICE -> question.options.forEach { option ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().testTag("answer_option_$option"),
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
                                     selected = response == option,
+                                    modifier = Modifier.testTag("answer_option_$option"),
                                     onClick = {
                                         response = option
                                         evaluation = null
