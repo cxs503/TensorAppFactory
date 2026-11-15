@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -25,9 +26,9 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Hello Tensor", style = MaterialTheme.typography.headlineLarge)
+                        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineLarge)
                         Text(
-                            "Android build pipeline is ready for its first verification.",
+                            stringResource(R.string.product_summary),
                             modifier = Modifier.padding(top = 12.dp),
                             style = MaterialTheme.typography.bodyLarge
                         )
