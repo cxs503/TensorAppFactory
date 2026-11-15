@@ -11,7 +11,8 @@ class QuizEngineTest {
         answer: String,
         accepted: List<String> = emptyList(),
         maxWords: Int? = null,
-        options: List<String> = emptyList()
+        options: List<String> = emptyList(),
+        groups: List<List<String>> = emptyList()
     ) = ContentQuestion(
         id = "q1",
         type = type,
@@ -20,7 +21,8 @@ class QuizEngineTest {
         answer = answer,
         acceptedAnswers = accepted,
         maxAnswerWords = maxWords,
-        explanation = "Explanation"
+        explanation = "Explanation",
+        requiredAnswerGroups = groups
     )
 
     @Test fun scoresSingleChoiceByExactOption() {
@@ -44,6 +46,31 @@ class QuizEngineTest {
         )
         assertTrue(QuizEngine.evaluate(q, "A GREEN FIELD!").isCorrect)
         assertFalse(QuizEngine.evaluate(q, "green forest").isCorrect)
+    }
+
+    @Test fun requiresEveryShortAnswerPointButAcceptsVariants() {
+        val q = question(
+            ContentQuestionType.SHORT_ANSWER,
+            answer = "reliable access to land; long-term support",
+            groups = listOf(
+                listOf("reliable access to land", "secure access to land"),
+                listOf("long-term support", "sustained support")
+            ),
+            maxWords = 8
+        )
+        assertTrue(QuizEngine.evaluate(q, "Secure access to land and sustained support").isCorrect)
+        assertFalse(QuizEngine.evaluate(q, "reliable access to land").isCorrect)
+        assertFalse(QuizEngine.evaluate(q, "access to land and long-term support").isCorrect)
+    }
+
+    @Test fun enforcesWordLimitForMultiPointAnswers() {
+        val q = question(
+            ContentQuestionType.SHORT_ANSWER,
+            answer = "land access and long-term support",
+            groups = listOf(listOf("land access"), listOf("long-term support")),
+            maxWords = 4
+        )
+        assertEquals(QuizOutcome.TOO_MANY_WORDS, QuizEngine.evaluate(q, "reliable land access and long-term support").outcome)
     }
 
     @Test fun enforcesShortAnswerWordLimit() {
