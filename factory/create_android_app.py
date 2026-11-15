@@ -73,7 +73,7 @@ def create_android_app(manifest_path: Path, output_dir: Path) -> list[str]:
         if old_package_dir.exists():
             new_package_dir.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(old_package_dir), str(new_package_dir))
-            shutil.rmtree(destination / "app" / "src" / "main" / "java" / "dev", ignore_errors=True)
+            shutil.rmtree(destination / "app" / "src" / "main" / "java" / "dev" / "tensorappfactory", ignore_errors=True)
         (destination / "product.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
