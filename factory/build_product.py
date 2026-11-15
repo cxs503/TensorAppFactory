@@ -10,6 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from jsonschema import Draft202012Validator
+
 try:
     from .create_android_app import create_android_app
 except ImportError:  # Direct script execution
