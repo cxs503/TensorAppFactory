@@ -17,6 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout pinned canonical content source
+        uses: actions/checkout@v4
+        with:
+          repository: cxs503/TensorProductFactory
+          ref: bb59f35a49b5e346cc0f174a34eeb1062250bb40
+          path: canonical-content
+      - name: Verify bundled content matches canonical benchmark
+        run: |
+          canonical="canonical-content/benchmarks/english-exam-coach/fixtures/reading-original-v0.1.json"
+          bundled="products/english-exam-coach/android/app/src/main/assets/reading-original-v0.1.json"
+          test "$(git hash-object "$canonical")" = "efd5fb8413f35897cb30f3fd7b5d60058dec858f"
+          cmp --silent "$canonical" "$bundled"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
