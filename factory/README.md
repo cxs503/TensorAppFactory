@@ -21,7 +21,7 @@ python factory/build_product.py specs/examples/hello-product.json \
   --result-file /tmp/hello-tensor-build-result.json
 ```
 
-The `build_product.py` runner composes validation, project generation, Gradle unit tests, APK assembly, SHA-256 hashing, build-log capture, and a machine-readable result JSON. A successful result includes product ID, manifest SHA-256, relative APK path, APK SHA-256, command, exit code, and build-log path. CI publishes the result JSON beside the generated APK.
+The `build_product.py` runner composes validation, project generation, Gradle unit tests, APK assembly, SHA-256 hashing, build-log capture, and a machine-readable result JSON. The result contract is defined in `specs/build-result.schema.json` and validated before the runner writes it. A successful result includes product ID, manifest SHA-256, relative APK path, APK SHA-256, command, exit code, and build-log path. CI publishes the result JSON beside the generated APK. Failed runs also emit a schema-valid result with a failure reason; the default result file is written next to (not inside) the generated project so it does not poison a retry.
 
 The generator only uses the approved `templates/android-native` template. It rejects invalid manifests, products without Android in their platform list, and non-empty output directories. It derives a Java-safe package name from the product ID, substitutes the display name and project name, relocates the Kotlin source to its generated package path, and copies the validated manifest into the generated project as `product.json`.
 
