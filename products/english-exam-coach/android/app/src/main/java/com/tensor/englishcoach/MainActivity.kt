@@ -53,6 +53,8 @@ private data class ReadingQuestion(
     val explanation: String
 )
 
+internal fun isCorrectAnswer(selected: String?, expected: String): Boolean = selected == expected
+
 private fun loadFirstQuestion(json: String): ReadingQuestion {
     val item = JSONObject(json).getJSONArray("items").getJSONObject(0)
     val prompt = item.getJSONObject("prompt")
@@ -130,7 +132,7 @@ private fun CoachApp(preferences: android.content.SharedPreferences, benchmarkJs
                 modifier = Modifier.fillMaxWidth()
             ) { Text(t("Check answer", "检查答案")) }
             if (submitted) {
-                val correct = selected == question.answer
+                val correct = isCorrectAnswer(selected, question.answer)
                 Text(if (correct) t("Correct", "回答正确") else t("Not quite", "还不正确"),
                     color = if (correct) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.titleMedium)
