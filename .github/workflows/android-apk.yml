@@ -11,6 +11,9 @@ on:
   pull_request:
     paths:
       - "templates/android-native/**"
+      - "factory/**"
+      - "specs/**"
+      - "tests/**"
       - ".github/workflows/android-apk.yml"
   workflow_dispatch:
 
@@ -52,8 +55,11 @@ jobs:
         run: gradle --no-daemon testDebugUnitTest assembleDebug
       - name: Build generated product project
         run: gradle --no-daemon -p /tmp/hello-tensor-generated testDebugUnitTest assembleDebug
-      - name: Verify generated APK exists
-        run: test -s /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk
+      - name: Stage generated APK for artifact upload
+        run: |
+          test -s /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk
+          mkdir -p generated-artifacts
+          cp /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk generated-artifacts/hello-tensor-generated-debug.apk
       - name: Verify APK exists and hash it
         run: |
           test -s templates/android-native/app/build/outputs/apk/debug/app-debug.apk
@@ -64,6 +70,6 @@ jobs:
           name: hello-tensor-debug-apk
           path: |
             templates/android-native/app/build/outputs/apk/debug/app-debug.apk
-            /tmp/hello-tensor-generated/app/build/outputs/apk/debug/app-debug.apk
+            generated-artifacts/hello-tensor-generated-debug.apk
           if-no-files-found: error
           retention-days: 14
