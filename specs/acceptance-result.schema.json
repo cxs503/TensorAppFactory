@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorappfactory.dev/schemas/acceptance-result.schema.json",
+  "title": "TensorAppFactory Product Acceptance Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "product_id",
+    "status",
+    "criteria"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "product_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "criterion_id",
+          "status",
+          "test_ref",
+          "evidence"
+        ],
+        "properties": {
+          "criterion_id": {
+            "type": "string",
+            "pattern": "^[A-Z0-9_-]+$"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          },
+          "test_ref": {
+            "type": "string",
+            "minLength": 3
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        }
+      }
+    }
+  }
+}
