@@ -6,13 +6,37 @@ from unittest.mock import patch
 from types import SimpleNamespace
 
 from factory.build_product import build_product
+from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = ROOT / "specs" / "examples" / "hello-product.json"
+RESULT_SCHEMA = ROOT / "specs" / "build-result.schema.json"
 
 
 class ProductBuildRunnerTests(unittest.TestCase):
+    def test_build_result_contract_schema_is_valid_and_accepts_success_and_failure(self):
+        schema = json.loads(RESULT_SCHEMA.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        passed = {
+            "result_schema_version": "1.0", "status": "passed",
+            "product_id": "hello-tensor", "project_dir": "/tmp/project",
+            "manifest_sha256": "a" * 64, "artifact": "app/build/outputs/apk/debug/app-debug.apk",
+            "sha256": "b" * 64, "build_log": "build.log",
+            "command": ["gradle", "--no-daemon", "testDebugUnitTest", "assembleDebug"],
+            "gradle_exit_code": 0, "failure_reason": None
+        }
+        failed = {
+            "result_schema_version": "1.0", "status": "failed",
+            "product_id": None, "project_dir": "/tmp/project",
+            "manifest_sha256": None, "artifact": None, "sha256": None,
+            "build_log": None, "command": None, "gradle_exit_code": None,
+            "failure_reason": "cannot read product manifest"
+        }
+        validator = Draft202012Validator(schema)
+        validator.validate(passed)
+        validator.validate(failed)
+
     def test_success_emits_artifact_hash_and_machine_readable_result(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
