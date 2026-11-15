@@ -56,11 +56,22 @@ private data class ReadingQuestion(
     val passage: String,
     val options: List<Pair<String, String>>,
     val expected: List<String>,
+    val maxAnswerWords: Int?,
     val explanation: String
 )
 
 internal fun isCorrectAnswer(selected: String?, expected: String): Boolean =
     selected?.trim()?.equals(expected.trim(), ignoreCase = true) == true
+
+internal fun extractMaxWordCount(instruction: String): Int? =
+    Regex("no more than (\\\\d+) words", RegexOption.IGNORE_CASE)
+        .find(instruction)?.groupValues?.getOrNull(1)?.toIntOrNull()
+
+internal fun isWithinWordLimit(response: String, maxWords: Int?): Boolean {
+    if (maxWords == null) return true
+    val words = response.trim().split(Regex("\\\\s+")).filter { it.isNotBlank() }
+    return words.size <= maxWords
+}
 
 internal fun isCorrectShortAnswer(response: String, expectedPhrases: List<String>): Boolean {
     val normalized = response.lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
@@ -96,6 +107,7 @@ private fun loadQuestions(json: String): List<ReadingQuestion> {
             passage = prompt.getString("stimulus").replace("\\\\n", "\n"),
             options = options,
             expected = expected,
+            maxAnswerWords = extractMaxWordCount(prompt.getString("instruction")),
             explanation = item.getJSONObject("answer_key").getString("explanation")
         )
     }
@@ -119,7 +131,7 @@ private fun CoachApp(preferences: android.content.SharedPreferences, benchmarkJs
     val question = questions.getOrNull(questionIndex)
     val isShortAnswer = question?.taskType == "short_answer"
     val isCorrect = question != null && if (isShortAnswer) {
-        isCorrectShortAnswer(typedAnswer, question.expected)
+        isWithinWordLimit(typedAnswer, question.maxAnswerWords) && isCorrectShortAnswer(typedAnswer, question.expected)
     } else {
         isCorrectAnswer(selected, question.expected.firstOrNull().orEmpty())
     }
@@ -160,7 +172,7 @@ private fun CoachApp(preferences: android.content.SharedPreferences, benchmarkJs
                     value = typedAnswer,
                     onValueChange = { if (!submitted) typedAnswer = it },
                     enabled = !submitted,
-                    label = { Text(t("Your answer (up to three words)", "填写答案（不超过三个词）")) },
+                    label = { Text(if (question.maxAnswerWords != null) t("Your answer (up to ${question.maxAnswerWords} words)", "填写答案（不超过${question.maxAnswerWords}个词）") else t("Your answer", "填写答案")) },
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
@@ -185,7 +197,7 @@ private fun CoachApp(preferences: android.content.SharedPreferences, benchmarkJs
                     attempts += 1
                     preferences.edit().putInt("attempted_answers", attempts).apply()
                 },
-                enabled = !submitted && if (isShortAnswer) typedAnswer.isNotBlank() else selected != null,
+                enabled = !submitted && if (isShortAnswer) typedAnswer.isNotBlank() && isWithinWordLimit(typedAnswer, question.maxAnswerWords) else selected != null,
                 modifier = Modifier.fillMaxWidth()
             ) { Text(t("Check answer", "检查答案")) }
             if (submitted) {
