@@ -43,8 +43,12 @@
     },
     {
       "id": "quiz-engine",
-      "status": "planned",
-      "description": "Reusable question rendering, deterministic scoring, and attempt tracking; not yet generated."
+      "status": "implemented",
+      "description": "Deterministic evaluation for single-choice, TFNG, and short-answer questions, including word limits and in-memory attempt tracking; UI rendering and persistent progress remain separate features.",
+      "evidence": [
+        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizEngine.kt",
+        "templates/android-native/app/src/test/java/dev/tensorappfactory/reference/QuizEngineTest.kt"
+      ]
     }
   ]
 }
