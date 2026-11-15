@@ -23,7 +23,7 @@ python factory/build_product.py specs/examples/hello-product.json \
 
 The `build_product.py` runner composes validation, project generation, Gradle unit tests, APK assembly, SHA-256 hashing, build-log capture, and a machine-readable result JSON. The result contract is defined in `specs/build-result.schema.json` and validated before the runner writes it. A successful result includes product ID, manifest SHA-256, relative APK path, APK SHA-256, command, exit code, and build-log path. CI publishes the result JSON beside the generated APK. Failed runs also emit a schema-valid result with a failure reason; the default result file is written next to (not inside) the generated project so it does not poison a retry.
 
-The generator only uses the approved `templates/android-native` template. It rejects invalid manifests, products without Android in their platform list, non-empty output directories, and Android feature claims that are unknown or not implemented. The machine-readable registry is `specs/android-feature-catalog.json`; `factory/validate_android_features.py` enforces it before generation. The reference template currently implements `product-identity-home`, `content-package-loader`, `quiz-engine`, and `quiz-ui`. The Compose quiz UI renders single-choice, TFNG, and short-answer questions, supports answer feedback, retry, next-question, and completion summary. Compose instrumentation tests exercise the learner flow. Navigation beyond the quiz, launch screen, localization settings, and persistent progress are still planned, so an Agent cannot claim them as generated capabilities. It derives a Java-safe package name from the product ID, substitutes the display name and project name, relocates the Kotlin source to its generated package path, and copies the validated manifest into the generated project as `product.json`.
+The generator only uses the approved `templates/android-native` template. It rejects invalid manifests, products without Android in their platform list, non-empty output directories, and Android feature claims that are unknown or not implemented. The machine-readable registry is `specs/android-feature-catalog.json`; `factory/validate_android_features.py` enforces it before generation. The reference template currently implements `product-identity-home`, `content-package-loader`, `quiz-engine`, `quiz-ui`, and `progress-persistence`. The Compose quiz UI renders single-choice, TFNG, and short-answer questions, supports answer feedback, retry, next-question, completion summary, and restores saved progress. Compose instrumentation tests exercise the learner flow and progress storage. Navigation beyond the quiz, launch screen, and localization settings are still planned, so an Agent cannot claim them as generated capabilities. It derives a Java-safe package name from the product ID, substitutes the display name and project name, relocates the Kotlin source to its generated package path, and copies the validated manifest into the generated project as `product.json`.
 
 ## Release-readiness gate
 
@@ -48,13 +48,15 @@ Exit code 0 means `release_ready`; exit code 1 means `blocked`. The result contr
 
 ## Current boundary
 
-This first generator creates a buildable Android shell. The template now renders the product name and summary through Android string resources, with XML-safe escaping for special characters. It does not generate product-specific business logic, screens, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
+This first generator creates a buildable Android shell. The template now renders the product name and summary through Android string resources, with XML-safe escaping for special characters. It does not generate product-specific business logic, backend services, store listings, signing keys, or production releases. Those remain explicit implementation and acceptance tasks; a generated shell is not a finished product.
 
 ## Versioned Android content packages
 
-The native template includes `ContentPackageLoader` and a sample asset at `app/src/main/assets/content/demo-reading.json`. The loader accepts schema version `1.0`, validates package identity and language, rejects duplicate question IDs, and enforces type-specific rules for single-choice, TRUE/FALSE/NOT GIVEN, and short-answer questions. Short-answer entries can carry accepted alternatives and a maximum word count. The corresponding JSON Schema is `specs/android-content-package.schema.json`; JVM tests cover valid mixed packages and invalid version, duplicate ID, invalid choice answer, and missing accepted-answer cases.
+The native template includes `ContentPackageLoader` and a sample asset at `app/src/main/assets/content/demo-reading.json`. The loader accepts schema version `1.0`, validates package identity and language, rejects duplicate question IDs, and enforces type-specific rules for single-choice, TRUE/FALSE/NOT GIVEN, and short-answer questions. Short-answer entries can carry accepted alternatives or required multi-point groups with alternative expressions, plus a maximum word count. The corresponding JSON Schema is `specs/android-content-package.schema.json`; JVM tests cover valid mixed packages and invalid version, duplicate ID, invalid choice answer, missing accepted-answer groups, and multi-point scoring behavior.
 
-The template connects the content loader, deterministic scoring engine, and Compose quiz screen. The screen currently loads the sample asset `demo-reading.json`; generated products must replace this sample with their reviewed product content package. The screen's session state is in memory only: attempts and correct-question IDs are lost when the process is recreated. Persistent progress remains a separate planned feature.
+## Progress persistence
+
+Quiz progress is stored locally in package-scoped Android SharedPreferences. The saved record includes current question index, current response, attempt count, correctly answered question IDs, and whether the current response has been submitted. On reopening the app, the learner resumes the current question and can see the prior feedback; completing a set exposes a restart action that clears only that package's progress. This is local device storage, not cloud sync or cross-device account progress. Instrumentation tests cover the store round-trip and end-of-quiz state.
 
 ## Feature implementation contract
 
@@ -62,10 +64,9 @@ Every Android feature named in a product manifest must exist in `specs/android-f
 
 ## Next components
 
-1. Versioned, composable feature modules with real generated screens and behavior.
-2. Content package loader and quiz engine, then progress persistence.
-3. Build executor with captured logs and artifact hashes.
-4. Acceptance-test executor and evidence bundle.
-5. Release signing, provenance, and store publication gates.
+1. Product navigation and localized settings.
+2. Content authoring/review and product-specific question packages.
+3. Acceptance-test executor and evidence bundle.
+4. Release signing, provenance, and store publication gates.
 
 Do not implement generation by copying arbitrary repository paths from untrusted manifests. Resolve only catalog-approved template IDs and validate all generated identifiers.
