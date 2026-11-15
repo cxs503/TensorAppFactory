@@ -1,11 +1,15 @@
 package dev.tensorappfactory.reference
 
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import android.content.Context
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,22 +50,45 @@ class QuizScreenTest {
 
     @Test
     fun learnerCanAnswerRetryAndFinishQuiz() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        QuizProgressStore(context).clear(content.packageId)
         composeRule.setContent { QuizScreen(content) }
 
-        composeRule.onNodeWithText("Choose the correct option").assertExists()
+        composeRule.onNodeWithText("Choose the correct option").assertIsDisplayed()
         composeRule.onNodeWithTag("answer_option_B").performClick()
         composeRule.onNodeWithText("Check answer").performClick()
-        composeRule.onNodeWithText("Correct").assertExists()
+        composeRule.onNodeWithText("Correct").assertIsDisplayed()
         composeRule.onNodeWithText("Next").performClick()
 
-        composeRule.onNodeWithText("Is this statement true?").assertExists()
+        composeRule.onNodeWithText("Is this statement true?").assertIsDisplayed()
         composeRule.onNodeWithTag("answer_option_TRUE").performClick()
         composeRule.onNodeWithText("Check answer").performClick()
-        composeRule.onNodeWithText("Correct").assertExists()
+        composeRule.onNodeWithText("Correct").assertIsDisplayed()
         composeRule.onNodeWithText("Finish").performClick()
 
-        composeRule.onNodeWithText("Practice complete").assertExists()
-        composeRule.onNodeWithText("Correct questions: 2 / 2").assertExists()
-        composeRule.onNodeWithText("Attempts: 2").assertExists()
+        composeRule.onNodeWithText("Practice complete").assertIsDisplayed()
+        composeRule.onNodeWithText("Correct questions: 2 / 2").assertIsDisplayed()
+        composeRule.onNodeWithText("Attempts: 2").assertIsDisplayed()
+        composeRule.waitForIdle()
+        assertEquals(2, QuizProgressStore(context).load(content.packageId).attempts)
+        assertTrue(QuizProgressStore(context).load(content.packageId).correctQuestionIds.containsAll(setOf("q1", "q2")))
+    }
+
+    @Test
+    fun progressStoreRestoresCurrentAnswerAndResults() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val store = QuizProgressStore(context)
+        store.clear("restore-test")
+        store.save(
+            "restore-test",
+            QuizProgress(1, "TRUE", 3, setOf("q1"), true)
+        )
+        val restored = store.load("restore-test")
+        assertEquals(1, restored.questionIndex)
+        assertEquals("TRUE", restored.response)
+        assertEquals(3, restored.attempts)
+        assertEquals(setOf("q1"), restored.correctQuestionIds)
+        assertTrue(restored.hasSubmitted)
+        store.clear("restore-test")
     }
 }
