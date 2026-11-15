@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import org.json.JSONArray
 import org.json.JSONObject
@@ -64,12 +65,12 @@ internal fun isCorrectAnswer(selected: String?, expected: String): Boolean =
     selected?.trim()?.equals(expected.trim(), ignoreCase = true) == true
 
 internal fun extractMaxWordCount(instruction: String): Int? =
-    Regex("no more than (\\\\d+) words", RegexOption.IGNORE_CASE)
+    Regex("no more than (\\d+) words", RegexOption.IGNORE_CASE)
         .find(instruction)?.groupValues?.getOrNull(1)?.toIntOrNull()
 
 internal fun isWithinWordLimit(response: String, maxWords: Int?): Boolean {
     if (maxWords == null) return true
-    val words = response.trim().split(Regex("\\\\s+")).filter { it.isNotBlank() }
+    val words = response.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
     return words.size <= maxWords
 }
 
@@ -178,7 +179,7 @@ private fun CoachApp(preferences: android.content.SharedPreferences, benchmarkJs
             } else {
                 question.options.forEach { option ->
                     Row(
-                        Modifier.fillMaxWidth().clickable(enabled = !submitted) { selected = option.first }.padding(vertical = 4.dp),
+                        Modifier.fillMaxWidth().clickable(enabled = !submitted) { selected = option.first }.testTag("option_${option.first}").padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.Start
                     ) {
                         RadioButton(
