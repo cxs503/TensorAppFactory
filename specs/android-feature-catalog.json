@@ -56,7 +56,8 @@
       "description": "Compose learner-facing quiz screen for single-choice, TFNG, and short-answer content with feedback, retry, next-question, and completion summary; progress is session-only.",
       "evidence": [
         "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/QuizScreen.kt",
-        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt"
+        "templates/android-native/app/src/main/java/dev/tensorappfactory/reference/MainActivity.kt",
+        "templates/android-native/app/src/androidTest/java/dev/tensorappfactory/reference/QuizScreenTest.kt"
       ]
     }
   ]
