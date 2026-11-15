@@ -47,19 +47,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
-          script: |
-            mkdir -p products/english-exam-coach/android/ci-diagnostics
-            adb logcat -c
-            cd products/english-exam-coach/android
-            if gradle --no-daemon :app:connectedDebugAndroidTest; then
-              echo "instrumentation_status=passed" > ci-diagnostics/status.txt
-            else
-              echo "instrumentation_status=failed" > ci-diagnostics/status.txt
-              adb logcat -d -v threadtime > ci-diagnostics/logcat.txt || true
-              find app/build/outputs -maxdepth 5 -type f -print > ci-diagnostics/output-files.txt || true
-              find app/build/reports -maxdepth 6 -type f -print > ci-diagnostics/report-files.txt || true
-              exit 1
-            fi
+          script: cd products/english-exam-coach/android && mkdir -p ci-diagnostics && adb logcat -c && gradle --no-daemon :app:connectedDebugAndroidTest && echo instrumentation_status=passed > ci-diagnostics/status.txt || { echo instrumentation_status=failed > products/english-exam-coach/android/ci-diagnostics/status.txt; adb logcat -d -v threadtime > products/english-exam-coach/android/ci-diagnostics/logcat.txt || true; find products/english-exam-coach/android/app/build/outputs -maxdepth 5 -type f -print > products/english-exam-coach/android/ci-diagnostics/output-files.txt || true; find products/english-exam-coach/android/app/build/reports -maxdepth 6 -type f -print > products/english-exam-coach/android/ci-diagnostics/report-files.txt || true; exit 1; }
       - name: Upload emulator diagnostics
         if: always()
         uses: actions/upload-artifact@v4
