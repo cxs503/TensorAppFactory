@@ -1,0 +1,18 @@
+{
+  "result_schema_version": "1.0",
+  "status": "failed",
+  "product_id": "hello-tensor",
+  "project_dir": "/root/tp-agent/work/m22954/runs/build-attempt",
+  "manifest_sha256": "3fb68645f77d0578c25d35fbce24323b41d9a2477b4148a344b08e0f3b4d8792",
+  "artifact": null,
+  "sha256": null,
+  "build_log": null,
+  "command": [
+    "gradle",
+    "--no-daemon",
+    "testDebugUnitTest",
+    "assembleDebug"
+  ],
+  "gradle_exit_code": null,
+  "failure_reason": "could not execute Gradle: [Errno 2] No such file or directory: 'gradle'"
+}
