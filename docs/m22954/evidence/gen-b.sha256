@@ -1,0 +1,17 @@
+4cb99eed8d8f189088ad16bdd4a8ccfb04fa6d93f8874ba3912b392f1401f2c0  ./app/build.gradle.kts
+b92b716a0b6d43a714db3b797d8aba05e930d672af3287bb11ef014f66a3895a  ./app/src/androidTest/java/dev/tensorappfactory/reference/QuizScreenTest.kt
+ae4f066f0f03c31674c7b9de2f22b662023f4584510456090304054a41090c0f  ./app/src/main/AndroidManifest.xml
+989995669c73a6e7a748a7f1d4fb5ee1ac0571079b72cb2328f3879e2c77011e  ./app/src/main/assets/content/demo-reading.json
+e53781cd89a6eccb2302c074cf5b9f786e15c3d9ffd096d14cdc3b5d938abd3a  ./app/src/main/java/dev/tensor/products/hello_tensor/ContentPackage.kt
+cd834e2c51fb9abad16d5c5180d2002e601535c104c7364a9df519576cd6c759  ./app/src/main/java/dev/tensor/products/hello_tensor/MainActivity.kt
+b77fb2842f6cf75ff37f17cf6786c101aa6942f6c1e6b7fc3d6b8dc3282e5c9e  ./app/src/main/java/dev/tensor/products/hello_tensor/QuizEngine.kt
+84a4cf9695ac99e3d9fc4d65f247f6f80344edf967ab2643303512409c9421fc  ./app/src/main/java/dev/tensor/products/hello_tensor/QuizProgressStore.kt
+ed0eacbe7a38a0d3f3e793a654793c940a9321ddb6af6271a6adb2d0170d2475  ./app/src/main/java/dev/tensor/products/hello_tensor/QuizScreen.kt
+3ade3ed1384103f6a9278f81c375de2aca4565780b2b93bd31fc80954238617b  ./app/src/main/res/values/strings.xml
+99a1a0d325a2c1991e78b170bcb076017ed3cfe9d5e4a0dfbdf958186a0e3fde  ./app/src/test/java/dev/tensorappfactory/reference/ContentPackageLoaderTest.kt
+2f2973215d67ed93416477ec04eea2b1e43d9a5abe48084e2fc69cd6489a59e2  ./app/src/test/java/dev/tensorappfactory/reference/QuizEngineTest.kt
+525109eca5ce7810e86362606ea6d7506a907fe5ed133e5b62905f6c7408e5f1  ./app/src/test/java/dev/tensorappfactory/reference/ReferenceUnitTest.kt
+61cd8e15a65a3ded440013250aa5c2bbc875158d0cf2db2e8fc5185ec3c69105  ./build.gradle.kts
+96404e0708375dd608e18596fee37d82743bbe26ebbfda09081f5560d463a2f5  ./gradle.properties
+ef54d553cfb9e3f574d991f54540a4ebdee2a3aeb72a1ad139737c64714894bc  ./product.json
+0867f18b0b13aa58d081ef0c78ee82e27449c7e0f0d936301b3ce2a3f99e8782  ./settings.gradle.kts

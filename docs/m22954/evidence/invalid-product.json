@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "product": {
+    "id": "Bad_Product_ID",
+    "name": "X",
+    "summary": "too short",
+    "platforms": ["android", "symbian"],
+    "features": [""]
+  },
+  "delivery": {
+    "artifacts": ["apk", "floppy"],
+    "acceptance_criteria": [
+      {"id": "bad id", "given": "", "when": "x", "then": "y"}
+    ]
+  }
+}
