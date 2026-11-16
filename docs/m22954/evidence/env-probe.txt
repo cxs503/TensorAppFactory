@@ -1,0 +1,88 @@
+环境探针原始记录（m22954，2026-11-16，执行机 tp-mod-4 工作树宿主）
+本文件为逐条命令的**原样输出摘录**，未做改写。凡"未执行"的项在 REPORT.md 中标 NOT-TESTED。
+
+== 1. 宿主与解释器 ==
+$ uname -m
+loongarch64
+$ python3 -V
+Python 3.11.6
+$ python3 -c "import jsonschema; from importlib.metadata import version; print(version('jsonschema'))"
+4.26.0
+（注：仓库 requirements-dev.txt 钉 jsonschema==4.23.0，本机装的是 4.26.0 —— 见 ci-vs-local 差异 D7）
+
+== 2. JDK：任务书要求的 apt-get 路径不可用，改用 Anolis 的 yum ==
+$ java -version
+openjdk version "11.0.17" 2022-10-18   (OpenJDK Runtime Environment AnolisOS-11.0.17.0.8-4.an23, loongarch64)
+$ which javac
+which: no javac in (...)
+$ apt-get install -s openjdk-17-jdk-headless
+/bin/sh: line 1: apt-get: command not found          <-- 任务书给出的命令在本机不存在（Anolis OS 用 yum/dnf）
+$ yum install -y java-17-openjdk-devel   (timeout 600, exit=0)
+Installed:
+  java-17-openjdk-1:17.0.5.0.8-4.lns23.loongarch64
+  java-17-openjdk-devel-1:17.0.5.0.8-4.lns23.loongarch64
+  java-17-openjdk-headless-1:17.0.5.0.8-4.lns23.loongarch64
+Complete!
+$ /usr/lib/jvm/java-17/bin/java -version
+openjdk version "17.0.5" 2022-10-18
+$ /usr/lib/jvm/java-17/bin/javac -version
+javac 17.0.5
+=> 结论：JDK17（AGP8 要求）在本机**可获得且已就位**（loongarch64 原生包）。
+
+== 3. Gradle：本机无，且分发包下载被平台安全策略拦截 ==
+$ which gradle
+which: no gradle in (...)
+$ ls ~/.gradle
+ls: cannot access '/root/.gradle': No such file or directory
+$ timeout 240 curl -sSL -o gradle-8.9-bin.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
+REJECTED: 命令被安全策略拦截
+$ timeout 25 curl -sS -o /tmp/g.zip -w "gradledist=%{http_code}\n" https://services.gradle.org/distributions/gradle-8.9-bin.zip
+REJECTED: 命令被安全策略拦截
+（对照）$ curl -sS -o /dev/null -w ... https://services.gradle.org/distributions/gradle-8.9-bin.zip.sha256
+services.gradle.org=301        <-- 探测类请求放行，分发包本体下载被拦
+$ timeout 60 find / -maxdepth 4 -name "gradle-*-bin.zip" -o -maxdepth 4 -name gradle -type d
+（无结果）
+=> 结论：无 gradle 可执行、无本地分发包、无法下载 => build 无法进入 Gradle 阶段。
+
+== 4. Android SDK：二进制是 x86-64，本机 loongarch64，无法执行 ==
+$ ls /opt/android-sdk
+build-tools  cmdline-tools  licenses  platform-tools  platforms
+$ ls /opt/android-sdk/build-tools  /opt/android-sdk/platforms
+34.0.0
+android-33  android-34  android-35
+$ file /opt/android-sdk/build-tools/34.0.0/aapt2
+ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked,
+interpreter /lib64/ld-linux-x86-64.so.2
+$ /opt/android-sdk/build-tools/34.0.0/aapt2 version
+/bin/sh: /opt/android-sdk/build-tools/34.0.0/aapt2: cannot execute binary file: Exec format error
+$ /opt/android-sdk/platform-tools/adb version
+/bin/sh: /opt/android-sdk/platform-tools/adb: cannot execute binary file: Exec format error
+（无 qemu-user / box64：$ ls /usr/bin | grep -E "qemu|box64" => 空）
+=> 结论：即便 JDK17+Gradle 就位，aapt2/adb 也无法在本机运行 -> AGP 资源打包/安装测试不可能通过。
+
+== 5. 依赖仓库可达性（AGP 8.x 只在 google maven） ==
+$ curl -o /dev/null -w "%{http_code}" https://repo1.maven.org/maven2/com/android/tools/build/gradle/maven-metadata.xml
+maven-central=200
+$ curl -o /dev/null -w "%{http_code}" https://dl.google.com/android/repository/repository2-3.xml   (timeout 15)
+exit=124 (超时，无响应)
+=> 结论：google maven 不可达；template/产品都声明 google() 仓库优先 -> 插件解析必然失败。
+
+== 6. 模拟器/KVM ==
+$ ls -l /dev/kvm
+ls: cannot access '/dev/kvm': No such file or directory
+=> CI 的 android-emulator-runner 步骤在本机不可能复现（另见 adb 不可执行）。
+
+== 7. 平台自身的 build runner 如实失败（不虚标） ==
+$ python3 factory/build_product.py specs/examples/hello-product.json --output-dir runs/build-attempt \
+      --result-file runs/evidence/build-result.json
+exit=1
+{ "status": "failed", ... "gradle_exit_code": null,
+  "failure_reason": "could not execute Gradle: [Errno 2] No such file or directory: 'gradle'" }
+=> 结论：build_product.py 在无 gradle 时报失败并落盘机器可读证据，**没有伪造 passed**。
+
+== 8. CI 内容钉（english-exam-coach）本地重放 ==
+$ git hash-object products/english-exam-coach/android/app/src/main/assets/reading-original-v0.1.json
+efd5fb8413f35897cb30f3fd7b5d60058dec858f
+$ grep canonical_git_blob_sha products/english-exam-coach/content-pack.lock.json
+"canonical_git_blob_sha": "efd5fb8413f35897cb30f3fd7b5d60058dec858f"
+=> 一致：CI 的 `test "$(git hash-object ...)" = efd5fb84…` 门在本地可满足（但**本仓无等价的自动化检查脚本**，该门只在 CI 里存在）。
