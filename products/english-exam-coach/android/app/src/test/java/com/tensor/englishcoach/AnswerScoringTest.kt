@@ -15,19 +15,21 @@ class AnswerScoringTest {
         assertFalse(isCorrectAnswer("A", "B"))
     }
 
+    private val legacyAccepted = legacyReadingPhraseForms(listOf("reliable access to land", "long-term support"))
+
     @Test
     fun shortAnswerRequiresAllExpectedPhrases() {
-        assertTrue(isCorrectShortAnswer("reliable access to land and long-term support", listOf("reliable access to land", "long-term support")))
+        assertTrue(isCorrectReadingExtract("reliable access to land; long-term support", legacyAccepted, 6))
     }
 
     @Test
     fun shortAnswerRejectsMissingExpectedPhrase() {
-        assertFalse(isCorrectShortAnswer("reliable access to land", listOf("reliable access to land", "long-term support")))
+        assertFalse(isCorrectReadingExtract("reliable access to land", legacyAccepted, 6))
     }
 
     @Test
-    fun shortAnswerIgnoresCaseAndPunctuation() {
-        assertTrue(isCorrectShortAnswer("Reliable access to land; LONG-TERM support.", listOf("reliable access to land", "long-term support")))
+    fun shortAnswerAcceptsExplicitLegacyDelimiterAndCaseVariants() {
+        assertTrue(isCorrectReadingExtract("Reliable access to land; LONG-TERM support.", legacyAccepted, 6))
     }
 
     @Test

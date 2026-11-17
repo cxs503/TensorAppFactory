@@ -13,6 +13,19 @@ This is the first product-specific Android target. It is intentionally separate 
 - Deterministic objective-answer checking with explanations.
 - Tappable option rows, retry after an incorrect answer, and next-question progression.
 - Correct-answer and answer-attempt counters persisted locally.
+- Resume an interrupted reading practice from the study space, including the current item,
+  selection or short-answer draft, and submitted feedback. The saved draft and counts use the
+  same app-private snapshot. Content-pack revision changes invalidate old drafts and per-item review
+  records while retaining aggregate counters.
+- Review mistakes by question: see total wrong submissions, up to five recent wrong answers,
+  the expected answer and rationale, and whether a later attempt corrected the mistake.
+  Correction is an in-app practice status, not mastery or a band estimate. Reviewing alone
+  is read-only and does not count as another attempt.
+- Start a focused retry from a review card without replacing a normal practice draft.
+  Finish or exit the focused retry to return to the saved session. A repeated attempt counts
+  as practice evidence, not a fresh diagnostic.
+- The interface language preference is stored locally. Practice content and explanations remain
+  in English, and drafts and wrong answers are not sent anywhere.
 - Explicit disclosure that this build is not affiliated with IELTS and does not provide official scores.
 
 ## Not implemented yet
